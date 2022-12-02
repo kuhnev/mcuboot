@@ -505,6 +505,13 @@ config MCUBOOT_LOG_THREAD_STACK_SIZE
 	help
 	  Set the internal stack size for MCUBoot log processing thread.
 
+config MCUBOOT_SHIFT_REGISTER_FIX
+	bool "Fixes uninitialized shift register on custom board"
+	default n
+	help
+	  Initializes shift register with default values. It fixes 
+	  the problem with LED's randomly turning on while in bootloader mode.
+
 config MCUBOOT_INDICATION_LED
 	bool "Turns on LED indication when device is in DFU"
 	default n

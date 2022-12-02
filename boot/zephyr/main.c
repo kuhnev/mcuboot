@@ -485,8 +485,73 @@ static bool detect_pin(void)
 }
 #endif
 
+#ifdef CONFIG_MCUBOOT_SHIFT_REGISTER_FIX
+#define RED_LED_NODE DT_ALIAS(ledred)
+#define BLUE_LED_NODE DT_ALIAS(ledblue)
+
+#define RELAY_1_NODE DT_ALIAS(relay1)
+#define RELAY_2_NODE DT_ALIAS(relay2)
+#define RELAY_3_NODE DT_ALIAS(relay3)
+#define RELAY_4_NODE DT_ALIAS(relay4)
+#define RELAY_5_NODE DT_ALIAS(relay5)
+#define RELAY_6_NODE DT_ALIAS(relay6)
+
+static const struct gpio_dt_spec red_led = GPIO_DT_SPEC_GET(RED_LED_NODE, gpios);
+static const struct gpio_dt_spec blue_red = GPIO_DT_SPEC_GET(BLUE_LED_NODE, gpios);
+
+static const struct gpio_dt_spec relay_1 = GPIO_DT_SPEC_GET(RELAY_1_NODE, gpios);
+static const struct gpio_dt_spec relay_2 = GPIO_DT_SPEC_GET(RELAY_2_NODE, gpios);
+static const struct gpio_dt_spec relay_3 = GPIO_DT_SPEC_GET(RELAY_3_NODE, gpios);
+static const struct gpio_dt_spec relay_4 = GPIO_DT_SPEC_GET(RELAY_4_NODE, gpios);
+static const struct gpio_dt_spec relay_5 = GPIO_DT_SPEC_GET(RELAY_5_NODE, gpios);
+static const struct gpio_dt_spec relay_6 = GPIO_DT_SPEC_GET(RELAY_6_NODE, gpios);
+
+
+
+static void initialize_single_output(const struct gpio_dt_spec* gpio)
+{
+    if (gpio)
+    {
+        if (!device_is_ready(gpio->port)) { return; }
+
+        gpio_pin_configure_dt(gpio, GPIO_OUTPUT);
+    }
+}
+
+static void initialize_all_outputs()
+{
+    initialize_single_output(&relay_1);
+    initialize_single_output(&relay_2);
+    initialize_single_output(&relay_3);
+    initialize_single_output(&relay_4);
+    initialize_single_output(&relay_5);
+    initialize_single_output(&relay_6);
+    initialize_single_output(&red_led);
+    initialize_single_output(&blue_red);
+
+    gpio_pin_set_dt(&relay_1, 0);
+    gpio_pin_set_dt(&relay_2, 0);
+    gpio_pin_set_dt(&relay_3, 0);
+    gpio_pin_set_dt(&relay_4, 0);
+    gpio_pin_set_dt(&relay_5, 0);
+    gpio_pin_set_dt(&relay_6, 0);
+    gpio_pin_set_dt(&red_led, 0);
+    gpio_pin_set_dt(&blue_red, 0);
+}
+#endif
+
 void main(void)
 {
+#ifdef CONFIG_MCUBOOT_SHIFT_REGISTER_FIX
+    /* Shift register has delayed MasterReset release and requires
+    additional delay before being operational */
+#ifdef CONFIG_MULTITHREADING
+    k_msleep(80);
+#else
+    k_busy_wait(80000);
+#endif
+    initialize_all_outputs();
+#endif
     struct boot_rsp rsp;
     int rc;
     fih_int fih_rc = FIH_FAILURE;
