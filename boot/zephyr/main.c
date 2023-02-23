@@ -489,13 +489,6 @@ static bool detect_pin(void)
 #define RED_LED_NODE DT_ALIAS(ledred)
 #define BLUE_LED_NODE DT_ALIAS(ledblue)
 
-#define RELAY_1_NODE DT_ALIAS(relay1)
-#define RELAY_2_NODE DT_ALIAS(relay2)
-#define RELAY_3_NODE DT_ALIAS(relay3)
-#define RELAY_4_NODE DT_ALIAS(relay4)
-#define RELAY_5_NODE DT_ALIAS(relay5)
-#define RELAY_6_NODE DT_ALIAS(relay6)
-
 static const struct gpio_dt_spec red_led = GPIO_DT_SPEC_GET(RED_LED_NODE, gpios);
 static const struct gpio_dt_spec blue_red = GPIO_DT_SPEC_GET(BLUE_LED_NODE, gpios);
 
