@@ -499,44 +499,48 @@ static bool detect_pin(void)
 static const struct gpio_dt_spec red_led = GPIO_DT_SPEC_GET(RED_LED_NODE, gpios);
 static const struct gpio_dt_spec blue_red = GPIO_DT_SPEC_GET(BLUE_LED_NODE, gpios);
 
-static const struct gpio_dt_spec relay_1 = GPIO_DT_SPEC_GET(RELAY_1_NODE, gpios);
-static const struct gpio_dt_spec relay_2 = GPIO_DT_SPEC_GET(RELAY_2_NODE, gpios);
-static const struct gpio_dt_spec relay_3 = GPIO_DT_SPEC_GET(RELAY_3_NODE, gpios);
-static const struct gpio_dt_spec relay_4 = GPIO_DT_SPEC_GET(RELAY_4_NODE, gpios);
-static const struct gpio_dt_spec relay_5 = GPIO_DT_SPEC_GET(RELAY_5_NODE, gpios);
-static const struct gpio_dt_spec relay_6 = GPIO_DT_SPEC_GET(RELAY_6_NODE, gpios);
 
+#define RELAY_OUTPUTS_MACRO(node_id)   GPIO_DT_SPEC_GET(node_id, gpios),
 
+static const struct gpio_dt_spec relays[] = {
+    DT_FOREACH_CHILD(DT_NODELABEL(relays), RELAY_OUTPUTS_MACRO)
+};
 
-static void initialize_single_output(const struct gpio_dt_spec* gpio)
+static int initialize_single_output(const struct gpio_dt_spec* gpio)
 {
+    int ret = -EINVAL;
+    
     if (gpio)
     {
-        if (!device_is_ready(gpio->port)) { return; }
-
-        gpio_pin_configure_dt(gpio, GPIO_OUTPUT);
+        if (!device_is_ready(gpio->port)) { ret = -ENODEV; }
+        else
+        {
+            ret = gpio_pin_configure_dt(gpio, GPIO_OUTPUT);
+        }
     }
+
+    return ret;
 }
 
 static void initialize_all_outputs()
 {
-    initialize_single_output(&relay_1);
-    initialize_single_output(&relay_2);
-    initialize_single_output(&relay_3);
-    initialize_single_output(&relay_4);
-    initialize_single_output(&relay_5);
-    initialize_single_output(&relay_6);
-    initialize_single_output(&red_led);
-    initialize_single_output(&blue_red);
+    for (int i = 0; i < ARRAY_SIZE(relays); ++i)
+    {
+        if (initialize_single_output(&relays[i]) == 0)
+        {
+            gpio_pin_set_dt(&relays[i], 0);
+        }
+    }
 
-    gpio_pin_set_dt(&relay_1, 0);
-    gpio_pin_set_dt(&relay_2, 0);
-    gpio_pin_set_dt(&relay_3, 0);
-    gpio_pin_set_dt(&relay_4, 0);
-    gpio_pin_set_dt(&relay_5, 0);
-    gpio_pin_set_dt(&relay_6, 0);
-    gpio_pin_set_dt(&red_led, 0);
-    gpio_pin_set_dt(&blue_red, 0);
+    if (initialize_single_output(&red_led) == 0)
+    {
+        gpio_pin_set_dt(&red_led, 0);
+    }
+
+    if (initialize_single_output(&blue_red) == 0)
+    {
+        gpio_pin_set_dt(&blue_red, 0);
+    }
 }
 #endif
 
