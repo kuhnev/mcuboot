@@ -485,7 +485,7 @@ static bool detect_pin(void)
 }
 #endif
 
-#ifdef CONFIG_MCUBOOT_SHIFT_REGISTER_FIX
+#if IS_ENABLED(CONFIG_MCUBOOT_SHIFT_REGISTER_FIX) && DT_HAS_COMPAT_STATUS_OKAY(nxp_74hcx595)  
 #define RED_LED_NODE DT_ALIAS(ledred)
 #define BLUE_LED_NODE DT_ALIAS(ledblue)
 
@@ -539,7 +539,7 @@ static void initialize_all_outputs()
 
 void main(void)
 {
-#ifdef CONFIG_MCUBOOT_SHIFT_REGISTER_FIX
+#if IS_ENABLED(CONFIG_MCUBOOT_SHIFT_REGISTER_FIX) && DT_HAS_COMPAT_STATUS_OKAY(nxp_74hcx595)  
     /* Shift register has delayed MasterReset release and requires
     additional delay before being operational */
 #ifdef CONFIG_MULTITHREADING
